@@ -8,4 +8,6 @@ PORT = 3000
 
 DATABASE_URL="postgresql://postgres:xxxxxx@localhost:5432/prismaDB?schema=public"
 
-// add thr above code in .env files and then your credentials()
+
+
+// add thr above code in .env files and then your credentials("please enter db name in place of `postgres` and enter password in place of `xxxxxx`")
