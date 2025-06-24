@@ -19,16 +19,16 @@ export const createComment = async(req, res) =>{
 
   const {post_id,user_id,comment} = req.body;
   // increase the commment counter where increase the comment
-  // await prisma.post.update({
-  //   where :{
-  //     id:Number(post_id)
-  //   },
-  //   data:{
-  //     comment_count:{
-  //       increment: 1,
-  //     },
-  //   },
-  // })
+  await prisma.post.update({
+    where :{
+      id:Number(post_id)
+    },
+    data:{
+      comment_count:{
+        increment: 1,
+      },
+    },
+  })
 
    const newComment = await prisma.comment.create({
     data :{
@@ -71,6 +71,9 @@ export const showComment = async (req, res) => {
 
 export const deleteComment = async (req, res) => {
   const userId = req.params.id;
+  
+   const {post_id} = req.body;
+
 
     // decrease the commment counter when delete the comment
     await prisma.post.update({

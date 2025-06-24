@@ -1,22 +1,24 @@
 import prisma from "../DB/db.config.js";
 
 //  show user name and comment inside post
-// export const fetchUsers = async (req, res) => {
-//   const users = await prisma.user.findMany({
-//     select:{
-//       name:true,
-//       post:
-//       {
-//         select:{
-//           comment:true,
-//           comment_count:true
-//         }
-//       }
-//     }
-//   })
+export const fetchUsers = async (req, res) => {
+  const users = await prisma.user.findMany({
+    select:{
+      id:true,
+      name:true,
+      post:
+      {
+        select:{
+          id:true,
+          comment:true,
+          comment_count:true
+        }
+      }
+    }
+  })
 
-//    return res.json({status :200 ,data :users , message:"all data"})
-// };
+   return res.json({status :200 ,data :users , message:"all data"})
+};
 
 
 
@@ -382,21 +384,21 @@ import prisma from "../DB/db.config.js";
 
 
 //  // user data with post count and also comment count
-export const fetchUsers = async (req, res) => {
-  const users = await prisma.user.findMany({
-    select: {
-      _count: 
-      {
-         select :{
-         post: true,
-         comment : true,   
-      } 
-      }
-    }
+// export const fetchUsers = async (req, res) => {
+//   const users = await prisma.user.findMany({
+//     select: {
+//       _count: 
+//       {
+//          select :{
+//          post: true,
+//          comment : true,   
+//       } 
+//       }
+//     }
       
-  })
-     return res.json({status :200 ,data :users , message:"all data"})
-};
+//   })
+//      return res.json({status :200 ,data :users , message:"all data"})
+// };
 
 
 export const createUser = async(req, res) =>{
