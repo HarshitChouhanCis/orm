@@ -43,6 +43,12 @@ model Comment{
    user User @relation(fields: [user_id], references: [id] , onDelete: Cascade)
    user_id Int
    comment String
+   //  reply_comment_id String @default(uuid())
+
+   reply_comment_id String?
+   // 👇 Self-relation
+   replyTo          Comment?  @relation("Replies", fields: [reply_comment_id], references: [id])
+   replies          Comment[] @relation("Replies")
    created_at DateTime @default(now())
 
 }
