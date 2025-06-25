@@ -161,6 +161,23 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.UserOrderByRelevanceFieldEnum = {
+  name: 'name',
+  email: 'email',
+  password: 'password'
+};
+
+exports.Prisma.PostOrderByRelevanceFieldEnum = {
+  title: 'title',
+  description: 'description'
+};
+
+exports.Prisma.CommentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  comment: 'comment',
+  reply_comment_id: 'reply_comment_id'
+};
+
 
 exports.Prisma.ModelName = {
   User: 'User',

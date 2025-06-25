@@ -133,6 +133,23 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.UserOrderByRelevanceFieldEnum = {
+  name: 'name',
+  email: 'email',
+  password: 'password'
+};
+
+exports.Prisma.PostOrderByRelevanceFieldEnum = {
+  title: 'title',
+  description: 'description'
+};
+
+exports.Prisma.CommentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  comment: 'comment',
+  reply_comment_id: 'reply_comment_id'
+};
+
 
 exports.Prisma.ModelName = {
   User: 'User',
@@ -163,7 +180,9 @@ const config = {
         "native": true
       }
     ],
-    "previewFeatures": [],
+    "previewFeatures": [
+      "fullTextSearchPostgres"
+    ],
     "sourceFilePath": "G:\\sample\\ORM\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
@@ -187,8 +206,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id         Int       @id @default(autoincrement())\n  name       String?\n  email      String    @unique\n  password   String?\n  post       Post[]\n  comment    Comment[]\n  created_at DateTime  @default(now())\n}\n\nmodel Post {\n  id            Int       @id @default(autoincrement())\n  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)\n  comment       Comment[]\n  user_id       Int\n  title         String\n  description   String\n  comment_count Int       @default(0)\n  created_at    DateTime  @default(now())\n}\n\nmodel Comment {\n  id      String @id @default(uuid())\n  post    Post   @relation(fields: [post_id], references: [id], onDelete: Cascade)\n  post_id Int\n  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)\n  user_id Int\n  comment String\n  //  reply_comment_id String @default(uuid())\n\n  reply_comment_id String?\n  // 👇 Self-relation\n  replyTo          Comment?  @relation(\"Replies\", fields: [reply_comment_id], references: [id])\n  replies          Comment[] @relation(\"Replies\")\n  created_at       DateTime  @default(now())\n}\n",
-  "inlineSchemaHash": "09a89950cf15be401df801bc72f04373e30f86b155ed3d407999999b8048aa13",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider        = \"prisma-client-js\"\n  output          = \"../generated/prisma\"\n  previewFeatures = [\"fullTextSearchPostgres\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id         Int       @id @default(autoincrement())\n  name       String?\n  email      String    @unique\n  password   String?\n  post       Post[]\n  comment    Comment[]\n  created_at DateTime  @default(now())\n}\n\nmodel Post {\n  id            Int       @id @default(autoincrement())\n  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)\n  comment       Comment[]\n  user_id       Int\n  title         String\n  description   String\n  comment_count Int       @default(0)\n  created_at    DateTime  @default(now())\n}\n\nmodel Comment {\n  id      String @id @default(uuid())\n  post    Post   @relation(fields: [post_id], references: [id], onDelete: Cascade)\n  post_id Int\n  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)\n  user_id Int\n  comment String\n  //  reply_comment_id String @default(uuid())\n\n  reply_comment_id String?\n  // 👇 Self-relation\n  replyTo          Comment?  @relation(\"Replies\", fields: [reply_comment_id], references: [id])\n  replies          Comment[] @relation(\"Replies\")\n  created_at       DateTime  @default(now())\n}\n",
+  "inlineSchemaHash": "00dd1379cb77f27eed003b46b312766b49a1e28814f4fa50b3814d5f008daf8c",
   "copyEngine": true
 }
 config.dirname = '/'
