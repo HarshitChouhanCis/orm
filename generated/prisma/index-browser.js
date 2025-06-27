@@ -125,6 +125,7 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   password: 'password',
+  role: 'role',
   created_at: 'created_at'
 };
 
@@ -177,7 +178,11 @@ exports.Prisma.CommentOrderByRelevanceFieldEnum = {
   comment: 'comment',
   reply_comment_id: 'reply_comment_id'
 };
-
+exports.Role = exports.$Enums.Role = {
+  ADMIN: 'ADMIN',
+  SELLER: 'SELLER',
+  CUSTOMER: 'CUSTOMER'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',

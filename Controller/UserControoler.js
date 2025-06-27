@@ -1,7 +1,11 @@
 import prisma from "../DB/db.config.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+
 
 //  show user name and comment inside post
 export const fetchUsers = async (req, res) => {
+  console.log('req:====>', req.user);
   const users = await prisma.user.findMany({
     select:{
       id:true,
@@ -400,26 +404,58 @@ export const fetchUsers = async (req, res) => {
 //      return res.json({status :200 ,data :users , message:"all data"})
 // };
 
+// user creation with role
+export const createUser = async (req, res) => {
+  const { name, email, password, role } = req.body;
 
-export const createUser = async(req, res) =>{
-   const {name,email,password} = req.body;
-   const findUser = await prisma.user.findUnique({
-      where :{
-         email:email
-      }
-   })
-   if(findUser){
-    return res.json({status:400 , message: "email already taken. use another email "})
-   }
-   const newUser = await prisma.user.create({
-    data :{
-        name: name,
-        email: email,
-        password: password
-    }
-   })
-   return res.json({status :200 ,data :newUser , message:" user create successfully"})
+  const findUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (findUser) {
+    return res.status(400).json({ message: "Email already taken. Use another email." });
+  }
+
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  const newUser = await prisma.user.create({
+    data: {
+      name,
+      email,
+      password: hashedPassword,
+      role: role || "CUSTOMER", // 👈 default to CUSTOMER if not provided
+    },
+  });
+
+  return res.status(200).json({
+    data: newUser,
+    message: "User created successfully",
+  });
 };
+
+// user creation 
+// export const createUser = async(req, res) =>{
+//    const {name,email,password} = req.body;
+//    const findUser = await prisma.user.findUnique({
+//       where :{
+//          email:email
+//       }
+//    })
+//    if(findUser){
+//     return res.json({status:400 , message: "email already taken. use another email "})
+//    }
+//    const saltRounds = 10;
+//    const hashedPassword = await bcrypt.hash(password, saltRounds);
+//    const newUser = await prisma.user.create({
+//     data :{
+//         name: name,
+//         email: email,
+//         password: hashedPassword
+//     }
+//    })
+//    return res.json({status :200 ,data :newUser , message:" user create successfully"})
+// };
 
 export const updateUser = async(req,res) =>{
    const userId = req.params.id;
@@ -440,7 +476,9 @@ export const updateUser = async(req,res) =>{
 };
 
 export const showUser = async (req, res) => {
-  const userId = req.params.id;
+  
+  // const userId = req.params.id;
+  const userId = req.user.id;
   const user = await prisma.user.findFirst({
     where: {
       id: Number(userId),
@@ -459,4 +497,69 @@ export const deleteUser = async (req, res) => {
   });
 
   return res.json({ status: 200, msg: "User deleted successfully" });
+};
+
+
+// Secret keys (keep them in .env in real projects)
+const ACCESS_TOKEN_SECRET = "access_secret_key";
+const REFRESH_TOKEN_SECRET = "refresh_secret_key";
+
+const generateAccessToken = (user) => {
+  return jwt.sign({ id: user.id, email: user.email, role: user.role }, ACCESS_TOKEN_SECRET, {
+    expiresIn: "59m", // short-lived
+  });
+};
+
+const generateRefreshToken = (user) => {
+  return jwt.sign({ id: user.id, email: user.email }, REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d", // long-lived
+  });
+};
+
+// ⏩ Login API
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    return res.status(404).json({ status: 404, message: "User not found" });
+  }
+  const validPassword = await bcrypt.compare(password, user.password);
+  if (!validPassword) {
+    return res.status(401).json({ status: 401, message: "Invalid credentials" });
+  }
+
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  // Save refresh token in DB if needed (optional)
+  // You can also save in Redis for better management
+
+  return res.json({
+    status: 200,
+    message: "Login successful",
+    accessToken,
+    refreshToken,
+  });
+};
+
+// 🔁 Refresh Token API
+export const refreshAccessToken = (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: "Refresh token missing" });
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+    const accessToken = generateAccessToken(decoded);
+
+    return res.json({
+      status: 200,
+      accessToken,
+      refreshToken,
+    });
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid refresh token" });
+  }
 };

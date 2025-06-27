@@ -29,11 +29,13 @@ export const fetchPosts = async (req, res) => {
     }
   })
 
-  // to get the total count
+  // // // // // to get the total count
   const totalPosts = await prisma.post.count()
   const totalPages = Math.ceil(totalPosts/limit)
 
-   return res.json({status :200 ,data :posts , message:" all data",meta:{totalPages,currentPage: page,limit:limit,},})
+   return res.json({status :200 ,data :posts , message:" all data",
+    meta:{totalPages,currentPage: page,limit:limit,},
+  })
 };
 
 

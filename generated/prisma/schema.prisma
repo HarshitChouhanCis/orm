@@ -15,11 +15,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  SELLER
+  CUSTOMER
+}
+
 model User {
   id         Int       @id @default(autoincrement())
   name       String?
   email      String    @unique
   password   String?
+  role       Role      @default(CUSTOMER)
   post       Post[]
   comment    Comment[]
   created_at DateTime  @default(now())
